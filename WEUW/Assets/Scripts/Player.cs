@@ -135,6 +135,7 @@ public class Player : MonoBehaviour
     {
         if (collision.CompareTag("ladder"))
         {
+            anim.SetBool("jump", false);
             isClimb = true;
             jumpCount = 1;
             rb.velocity = Vector3.zero;
