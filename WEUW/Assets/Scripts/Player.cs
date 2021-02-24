@@ -13,9 +13,11 @@ public class Player : MonoBehaviour
     private Animator anim;
     private SpriteRenderer sr;
 
+    public Alpha nearWord = null;
 
     bool isJump = false;
     bool isClimb = false;
+    bool isNearWord = false;
     int jumpCount = 0;
 
 
@@ -53,11 +55,15 @@ public class Player : MonoBehaviour
         if (Input.GetButtonDown("Jump"))
             isJump = true;
 
-
+        GetInput();
 
         Move();
         Jump();
         useGravity();
+    }
+    void GetInput()
+    {
+        if (Input.GetKeyDown(KeyCode.C)) selectNearWord();
     }
 
     private void Move()
@@ -88,7 +94,7 @@ public class Player : MonoBehaviour
         {
             veloX = Vector3.up;
         }
-        
+
 
         transform.position += veloX * speed * Time.deltaTime;
 
@@ -98,7 +104,7 @@ public class Player : MonoBehaviour
     {
         if (!isJump || jumpCount > 1) return;
 
-        rb.velocity = Vector2.zero;//new Vector2(rb.velocity.x, 0);
+        rb.velocity = Vector2.zero;
         rb.AddForce(Vector2.up * jumpforce, ForceMode2D.Impulse);
         isJump = false;
         jumpCount++;
@@ -116,20 +122,28 @@ public class Player : MonoBehaviour
 
     }
 
+    void selectNearWord()
+    {
+        if (isNearWord)
+        {
+            GameManager gm = GameManager.Instance;
+            Debug.Log("keydown C");
+
+            gm.WordUIChange(nearWord);
+            nearWord.End();
+        }
+    }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         // 충돌체의 충돌 표면이 위쪽을 향하는 것을 확인.
-        if(collision.contacts[0].normal.y > 0.7f)
+        if (collision.contacts[0].normal.y > 0.7f)
         {
             jumpCount = 0;
             isJump = false;
             anim.SetBool("jump", false);
         }
 
-    }
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -140,11 +154,24 @@ public class Player : MonoBehaviour
             jumpCount = 1;
             rb.velocity = Vector3.zero;
         }
-            
+        if (collision.CompareTag("word"))
+        {
+            Debug.Log("triggerenter");
+            isNearWord = true;
+            nearWord = collision.GetComponent<Alpha>();
+
+        }
     }
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (collision.CompareTag("ladder"))
             isClimb = false;
+
+        if (collision.CompareTag("word"))
+        {
+            isNearWord = false;
+            nearWord = null;
+        }
     }
 }
+    
