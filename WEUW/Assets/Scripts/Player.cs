@@ -86,14 +86,15 @@ public class Player : MonoBehaviour
         else
             anim.SetBool("run", false);
 
-        if (Input.GetAxisRaw("Vertical") < 0)
-        {
-            veloX = Vector3.down;
-        }
-        else if (Input.GetAxisRaw("Vertical") > 0)
-        {
-            veloX = Vector3.up;
-        }
+        if(isClimb)
+            if (Input.GetAxisRaw("Vertical") < 0)
+            {
+                veloX = Vector3.down;
+            }
+            else if (Input.GetAxisRaw("Vertical") > 0)
+            {
+                veloX = Vector3.up;
+            }
 
 
         transform.position += veloX * speed * Time.deltaTime;
@@ -154,6 +155,8 @@ public class Player : MonoBehaviour
             jumpCount = 1;
             rb.velocity = Vector3.zero;
         }
+
+
         if (collision.CompareTag("word"))
         {
             Debug.Log("triggerenter");

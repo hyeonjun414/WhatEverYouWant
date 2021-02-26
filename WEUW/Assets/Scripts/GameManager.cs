@@ -31,15 +31,18 @@ public class GameManager : MonoBehaviour
     #region º¯¼ö
     public string selectWord = null;
     public string keyword;
-    public Alpha[] wordObject;
     public GameObject wordUI;
     public GameObject answer;
+    public int selectCount = 0;
+    public Sprite question;
+    public GameObject pos;
+    public GameObject wordPrefab;
+
+    public List<GameObject> wordObjectList;
+    public Transform[] randomPos;
+    public Alpha[] wordObject;
     public Image[] selectWordImage;
     public Image[] answerWordImage;
-    public int selectCount = 0;
-
-    public Sprite question;
-
     public Sprite[] sprites;
     public Dictionary<string, Sprite> dictionary = new Dictionary<string, Sprite>();
     #endregion
@@ -55,6 +58,7 @@ public class GameManager : MonoBehaviour
 
         selectWordImage = wordUI.GetComponentsInChildren<Image>();
         answerWordImage = answer.GetComponentsInChildren<Image>();
+        randomPos = pos.GetComponentsInChildren<Transform>();
     }
 
     // Update is called once per frame
@@ -85,6 +89,53 @@ public class GameManager : MonoBehaviour
             wordObject[i].word = keyword[i].ToString();
             wordObject[i].sr.sprite = sprites[j];
         }
+    }
+
+    [Button]
+    void GenerateWord()
+    {
+        keyword = WordManager.Instance.SelectWord();
+        if (wordObjectList != null)
+        {
+            for (int i = 0; i < wordObjectList.Count; i++)
+                Destroy(wordObjectList[i].gameObject);
+            wordObjectList.Clear();
+        }
+
+        for (int i = 1; i < randomPos.Length; i++)
+        {
+            GameObject word = Instantiate(wordPrefab, randomPos[i].position, Quaternion.identity);
+            wordObjectList.Add(word);
+        }
+        int count = 0;
+        for(int i = 0; i< 2; i++)
+        {
+            string alpha = WordManager.Instance.WordList[i];
+            for(int j = 0; j<alpha.Length; j++)
+            {
+                Alpha word = wordObjectList[count].GetComponent<Alpha>();
+                word.word = alpha[j].ToString();
+                for (int wordspriteidx = 27; j < sprites.Length; wordspriteidx++)
+                {
+                    if (("W_" + word.word.ToString() + " (UnityEngine.Sprite)") == sprites[wordspriteidx].ToString())
+                    {
+                        word.sr.sprite = sprites[wordspriteidx];
+                        break;
+                    }
+                }
+                count++;
+            }
+        }
+
+        for(int i = 0; i<10; i++)
+        {
+            int num = Random.Range(0, wordObjectList.Count);
+            Vector3 pos = wordObjectList[i].transform.position;
+            wordObjectList[i].transform.position = wordObjectList[num].transform.position;
+            wordObjectList[num].transform.position = pos;
+
+        }
+
     }
 
     public void WordUIChange(Alpha word)

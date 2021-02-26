@@ -9,14 +9,18 @@ public class Alpha : MonoBehaviour
     public SpriteRenderer sr = null;
 
     // Start is called before the first frame update
-    void Start()
+    private void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
-        transform.DOLocalMoveY(0.25f, 1).SetLoops(-1, LoopType.Yoyo);
+        
+    }
+    void Start()
+    {
+        transform.DOLocalMoveY(transform.position.y + 0.25f, 1).SetLoops(-1, LoopType.Yoyo);
     }
 
     public void End()
     {
-        Destroy(gameObject);
+        //Destroy(gameObject);
     }
 }
