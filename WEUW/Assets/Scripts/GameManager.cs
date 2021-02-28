@@ -45,6 +45,9 @@ public class GameManager : MonoBehaviour
     public Image[] answerWordImage;
     public Sprite[] sprites;
     public Dictionary<string, Sprite> dictionary = new Dictionary<string, Sprite>();
+
+
+    public int score = 0;
     #endregion
 
 
@@ -165,11 +168,13 @@ public class GameManager : MonoBehaviour
 
     public void SummitAnswer()
     {
+        int answerCount=0;
         for(int i = 0; i<selectWord.Length; i++)
         {
             if(selectWord[i] == keyword[i])
             {
                 answerWordImage[i].sprite = selectWordImage[i].sprite;
+                answerCount++;
             }
             else
             {
@@ -178,8 +183,23 @@ public class GameManager : MonoBehaviour
             selectWordImage[i].sprite = question;
 
         }
+        if(answerCount == 5)
+        {
+            score++;
+            UIManager.Instance.UpdateScore(score);
+            GenerateWord();
+            ResetAnswerWord();
+        }
         selectWord = null;
         selectCount = 0;
     }
+
+    void ResetAnswerWord()
+    {
+        for (int i = 0; i < answerWordImage.Length; i++)
+            answerWordImage[i].sprite = question;
+    }
+
+
     #endregion
 }
