@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviourPun
 {
 
     public float speed = 5f;
@@ -21,7 +22,7 @@ public class Player : MonoBehaviour
     int jumpCount = 0;
 
 
-    private static Player instance;
+    /*private static Player instance;
     public static Player Instance
     {
         get
@@ -39,7 +40,7 @@ public class Player : MonoBehaviour
 
         instance = this;
         DontDestroyOnLoad(gameObject);
-    }
+    }*/
     // Start is called before the first frame update
     void Start()
     {
@@ -51,6 +52,9 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // 로컬 플레이어가 아닌 경우 입력 안받음.
+        if (!photonView.IsMine) return;
+
         // 키입력 받는 부분
         if (Input.GetButtonDown("Jump"))
             isJump = true;
@@ -74,13 +78,15 @@ public class Player : MonoBehaviour
         if (Input.GetAxisRaw("Horizontal") < 0)
         {
             veloX = Vector3.left;
-            sr.flipX = true;
+            transform.localScale = new Vector3(-1, 1, 1);
+            //sr.flipX = true;
             anim.SetBool("run", true);
         }
         else if (Input.GetAxisRaw("Horizontal") > 0)
         {
             veloX = Vector3.right;
-            sr.flipX = false;
+            transform.localScale = new Vector3(1, 1, 1);
+            //sr.flipX = false;
             anim.SetBool("run", true);
         }
         else

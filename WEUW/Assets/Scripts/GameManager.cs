@@ -2,9 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Photon.Pun;
 using Sirenix.OdinInspector;
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 {
     #region 싱글톤
     private static GameManager instance;
@@ -37,6 +38,7 @@ public class GameManager : MonoBehaviour
     public Sprite question;
     public GameObject pos;
     public GameObject wordPrefab;
+    public GameObject PlayerPrefab;
 
     public List<GameObject> wordObjectList;
     public Transform[] randomPos;
@@ -50,9 +52,27 @@ public class GameManager : MonoBehaviour
     public int score = 0;
     #endregion
 
-
+    // 주기적으로 자동 실행되는 포톤 메서드
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if(stream.IsWriting)
+        {
+            // 로컬오브젝트라면 쓰기 부분이 실행
+            // 네트워크를 통해 score 값 보내기
+            stream.SendNext(score);
+        }
+        else
+        {
+            // 리모트 오브젝트라면 읽기 부분이 실행됨
+            // 네트워크를 통해 score값 받기
+            score = (int)stream.ReceiveNext();
+            // 동기화하여 받은 점수를 UI로 표시
+            UIManager.Instance.UpdateScore(score);
+        }
+    }
     void Start()
     {
+        
         sprites = Resources.LoadAll<Sprite>("wordimage/keybtn");
         for(int i = 0; i<sprites.Length; i++)
         {
@@ -62,6 +82,12 @@ public class GameManager : MonoBehaviour
         selectWordImage = wordUI.GetComponentsInChildren<Image>();
         answerWordImage = answer.GetComponentsInChildren<Image>();
         randomPos = pos.GetComponentsInChildren<Transform>();
+
+        // 플레이어 생성 랜덤 위치 지정
+        Vector3 randompos = new Vector3(Random.Range(-1, 2), 1f, 0f);
+        // 네트워크 상의 모들 클라이언트에서 생성
+        PhotonNetwork.Instantiate(PlayerPrefab.name, randompos, Quaternion.identity);
+
     }
 
     // Update is called once per frame
@@ -107,7 +133,7 @@ public class GameManager : MonoBehaviour
 
         for (int i = 1; i < randomPos.Length; i++)
         {
-            GameObject word = Instantiate(wordPrefab, randomPos[i].position, Quaternion.identity);
+            GameObject word = PhotonNetwork.Instantiate(wordPrefab.name, randomPos[i].position, Quaternion.identity);
             wordObjectList.Add(word);
         }
         int count = 0;
@@ -200,6 +226,7 @@ public class GameManager : MonoBehaviour
             answerWordImage[i].sprite = question;
     }
 
+    
 
     #endregion
 }
