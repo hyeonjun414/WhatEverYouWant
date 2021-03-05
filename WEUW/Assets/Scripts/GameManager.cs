@@ -85,7 +85,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
         // 플레이어 생성 랜덤 위치 지정
         Vector3 randompos = new Vector3(Random.Range(-1, 2), 1f, 0f);
-        // 네트워크 상의 모들 클라이언트에서 생성
+        // 네트워크 상의 모든 클라이언트에서 생성
         PhotonNetwork.Instantiate(PlayerPrefab.name, randompos, Quaternion.identity);
 
     }
@@ -101,7 +101,6 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (Input.GetKeyDown(KeyCode.X)) RemoveOneWord();
         if (Input.GetKeyDown(KeyCode.Z)) SummitAnswer();
-
     }
     [Button]
     void selectTest()
@@ -133,7 +132,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
         for (int i = 1; i < randomPos.Length; i++)
         {
-            GameObject word = PhotonNetwork.Instantiate(wordPrefab.name, randomPos[i].position, Quaternion.identity);
+            GameObject word = Instantiate(wordPrefab, randomPos[i].position, Quaternion.identity);
             wordObjectList.Add(word);
         }
         int count = 0;
